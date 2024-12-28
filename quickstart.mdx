@@ -1,9 +1,6 @@
-
-# Mintlify API Documentation
-
 ## Introduction
 
-Mintlify provides a powerful API for interacting with various AI functionalities, including HTTP requests to a server and a Node.js SDK. This documentation covers the usage of both the HTTP API and the Node.js SDK.
+We provide a powerful API for interacting with various AI functionalities, including HTTP requests to a server and a Node.js SDK. This documentation covers the usage of both the HTTP API and the Node.js SDK.
 
 ## HTTP API
 
@@ -12,7 +9,7 @@ The base URL for the HTTP API is `http://localhost:4333`.
 
 ### Endpoints
 
-#### 1. **POST /api/v1/request**
+#### 1. `POST /api/v1/request`
 
 This endpoint is used to handle various AI requests.
 
@@ -21,6 +18,11 @@ This endpoint is used to handle various AI requests.
   - `Authorization`: API key for authorization.
   
 - **Body:**
+  - `{}`: `Object` with keys: `type`, `data` where:
+    - `type` - request type, must be a `string`, it can take the following values: (`web_search`, `llm_inference`, `visual_imagine`, `visual_upscale`, `visual_vary`, `visual_upsample`, `visual_outpaint`);
+    - `data` - request body, depends on `type` parameter.
+
+Example:
 ```json
 {
   "type": "string", // Type of request (e.g., search, llm_inference)
