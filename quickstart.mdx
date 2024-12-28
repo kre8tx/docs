@@ -1,188 +1,186 @@
----
-title: PublicAPIWrapper Class
----
 
-# PublicAPIWrapper Class
+# Mintlify API Documentation
 
-## Overview
+## Introduction
 
-The `PublicAPIWrapper` class provides a simplified interface to interact with various AI-related services. It handles authentication, request formatting, and response processing, making it easier to integrate these services into your applications.
+Mintlify provides a powerful API for interacting with various AI functionalities, including HTTP requests to a server and a Node.js SDK. This documentation covers the usage of both the HTTP API and the Node.js SDK.
 
-## Constructor
+## HTTP API
 
-### Parameters
+### Base URL
+The base URL for the HTTP API is `http://localhost:4333`.
 
-- `apiKey`: Your unique API key for authentication
-- `baseUrl`: Base URL of the API service (default: `'http://localhost:4333'`)
+### Endpoints
 
-### Usage Example
+#### 1. **POST /api/v1/request**
 
-```javascript
-const apiWrapper = new PublicAPIWrapper('your-api-key');
+This endpoint is used to handle various AI requests.
+
+##### **Request Structure**
+- **Headers:**
+  - `Authorization`: API key for authorization.
+  
+- **Body:**
+```json
+{
+  "type": "string", // Type of request (e.g., search, llm_inference)
+  "data": { // Request-specific data
+    // Varies based on type
+  }
+}
 ```
 
-## Methods
-
-### imagine(options)
-
-Performs image generation based on the provided options.
-
-#### Parameters
-
-- `options`: Object containing parameters for image generation
-
-#### Returns
-
-Promise resolving to the generated image data
-
-#### Usage Example
-
-```javascript
-const result = await apiWrapper.imagine({
-  prompt: 'Generate a cat',
-  width: 512,
-  height: 512,
-});
+##### **Response Structure**
+- **Success (200)**:
+```json
+{
+  "status": "1",
+  "data": {
+    "results": [], // Results from the request
+    "extendedResults": [] // Extended results if any
+  }
+}
 ```
 
-### infer(RequestBody)
-
-Performs large language model inference on the provided request body.
-
-#### Parameters
-
-- `RequestBody`: Object containing request parameters for LLM inference
-
-#### Returns
-
-Promise resolving to a readable stream of response data
-
-#### Usage Example
-
-```javascript
-const stream = await apiWrapper.infer({
-  model: 'gpt-3.5-turbo',
-  messages: ['Start generating a short story'],
-});
-stream.on('data', (chunk) => {
-  console.log(chunk.toString());
-});
+- **Errors**:
+```json
+{
+  "status": "-1",
+  "code": "error_code", // Error code
+  "data": {}
+}
 ```
 
-### search(options)
+### Service Functions
 
-Performs text-based searches using the API.
+#### handleSearch
+Handles search requests.
 
-#### Parameters
-
-- `options`: Object containing parameters for the search operation
-
-#### Returns
-
-Promise resolving to the search results
-
-#### Usage Example
-
-```javascript
-const searchResults = await apiWrapper.search({
-  query: 'AI advancements in 2022',
-  limit: 10,
-});
-console.log(searchResults);
+##### **Request Example**
+```json
+{
+  "type": "search",
+  "data": {
+    "query": "example search query"
+  }
+}
 ```
 
-### visualUpscale(options)
+#### handleInfer
+Handles inference requests.
 
-Enhances image resolution based on provided options.
-
-#### Parameters
-
-- `options`: Object containing parameters for image enhancement
-
-#### Returns
-
-Promise resolving to the enhanced image data
-
-#### Usage Example
-
-```javascript
-const upscaleResult = await apiWrapper.visualUpscale({
-  image: 'path/to/image.jpg',
-  scale: 2,
-});
+##### **Request Example**
+```json
+{
+  "type": "llm_inference",
+  "data": {
+    "model": "claude-sonnet-3.5",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello, how can I help you?"
+      }
+    ],
+    "web": {
+      "results": [],
+      "extendedResults": []
+    }
+  }
+}
 ```
 
-### visualVariations(options)
+#### handleVisualImagine
+Handles image generation requests.
 
-Generates multiple variations of an image based on provided options.
-
-#### Parameters
-
-- `options`: Object containing parameters for image variation generation
-
-#### Returns
-
-Promise resolving to an array of generated image variations
-
-#### Usage Example
-
-```javascript
-const variations = await apiWrapper.visualVariations({
-  image: 'path/to/image.jpg',
-  variations: 5,
-});
+##### **Request Example**
+```json
+{
+  "type": "visual/imagine",
+  "data": {
+    "prompt": "A beautiful sunrise over the mountains",
+    "model": "recraft"
+  }
+}
 ```
 
-### visualUpsample(options)
+#### handleVisualUpscale
+Handles image upscaling requests.
 
-Upsamples an image to a higher resolution based on provided options.
-
-#### Parameters
-
-- `options`: Object containing parameters for image upscaling
-
-#### Returns
-
-Promise resolving to the upscaled image data
-
-#### Usage Example
-
-```javascript
-const upsampleResult = await apiWrapper.visualUpsample({
-  image: 'path/to/image.jpg',
-  targetSize: { width: 1024, height: 768 },
-});
+##### **Request Example**
+```json
+{
+  "type": "visual/upscale",
+  "options": {
+    "data": "base64_image_data",
+    "choice": "1"
+  }
+}
 ```
 
-### visualOutpaint(options)
+## Node.js SDK
 
-Generates new content around an existing image based on provided options.
+### Installation
 
-#### Parameters
+To use the Node.js SDK, install it via npm:
 
-- `options`: Object containing parameters for outpainting
-
-#### Returns
-
-Promise resolving to the generated outpainted image data
-
-#### Usage Example
-
-```javascript
-const outpaintResult = await apiWrapper.visualOutpaint({
-  image: 'path/to/image.jpg',
-  prompt: 'Continue the scene with a futuristic cityscape',
-});
+```bash
+npm install your-sdk-package
 ```
 
-## Error Handling
+### Usage
 
-The class uses promises for asynchronous operations. Any errors during API calls will be rejected with a promise rejection. You should handle these rejections appropriately in your code.
+```javascript
+const PublicAPIWrapper = require('./wrp/index');
 
-## Notes
+// Initialize the API wrapper
+const api = new PublicAPIWrapper('your_api_key');
 
-- Ensure that your API key is valid and has the necessary permissions for all operations you're performing.
-- The base URL should match the actual endpoint of your API service.
-- Some methods may have additional required fields or specific parameter formats. Always refer to the latest API documentation for the most accurate information.
+async function main() {
+  try {
+    await api.infer({
+      model: "claude-sonnet-3.5",
+      messages: [
+        {
+          role: 'user',
+          content: 'What is the capital of France?'
+        }
+      ]
+    }).then((stream) => {
+      stream.on('data', (chunk) => {
+        let inference = JSON.parse(chunk.toString());
+        if (inference) {
+          if (inference.type === 'completion.data') {
+            console.log(inference.data);
+          } else if (inference.type === 'completion.end') {
+            console.log('Stream completed.');
+          } else if (inference.type === 'completion.error') {
+            console.error('Error:', inference.data);
+          }
+        }
+      });
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
 
----
+main();
+```
+
+### API Methods
+
+#### `infer(RequestBody)`
+- **Description**: Sends a request for inference.
+- **Parameters**: `RequestBody` - Object containing messages and model information.
+
+#### `imagine(options)`
+- **Description**: Generates images based on the provided prompt.
+- **Parameters**: `options` - Object containing the prompt and model.
+
+#### `visualUpscale(options)`
+- **Description**: Upscales a given image.
+- **Parameters**: `options` - Object containing image data and choices for upscaling.
+
+### Conclusion
+
+For more information and detailed examples, refer to the specific endpoint documentation. This API is designed to be flexible and easy to integrate into your applications.
